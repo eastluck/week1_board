@@ -13,10 +13,11 @@ export default async function Home({ searchParams }: HomeProps) {
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
 
-  const { posts, totalCount, totalPages, currentPage } = await getPostsWithPagination(
-    page,
-    pageSize
-  );
+  const result = await getPostsWithPagination(page, pageSize);
+  const posts = result?.posts || [];
+  const totalCount = result?.totalCount || 0;
+  const totalPages = result?.totalPages || 0;
+  const currentPage = result?.currentPage || 1;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
