@@ -12,7 +12,7 @@ export default function CommentSection({
   postId,
   initialComments,
 }: CommentSectionProps) {
-  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [comments, setComments] = useState<Comment[]>(initialComments || []);
   const [content, setContent] = useState("");
   const [author, setAuthor] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

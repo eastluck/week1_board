@@ -10,13 +10,13 @@ export default async function PostDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const post = getPost(parseInt(id));
+  const post = await getPost(parseInt(id));
 
   if (!post) {
     notFound();
   }
 
-  const comments = getCommentsByPostId(parseInt(id));
+  const comments = await getCommentsByPostId(parseInt(id));
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
