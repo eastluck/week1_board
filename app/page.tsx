@@ -13,7 +13,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
 
-  const { posts, totalCount, totalPages, currentPage } = getPostsWithPagination(
+  const { posts, totalCount, totalPages, currentPage } = await getPostsWithPagination(
     page,
     pageSize
   );
