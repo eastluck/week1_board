@@ -50,38 +50,40 @@ export default async function Home({ searchParams }: HomeProps) {
                 게시글이 없습니다.
               </div>
             ) : (
-              posts.map((post) => {
-                const commentCount = getCommentCount(post.id);
-                return (
-                  <Link
-                    key={post.id}
-                    href={`/posts/${post.id}`}
-                    className="block px-6 py-4 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h2 className="text-lg font-semibold text-gray-800 mb-1">
-                          {post.title}
-                          {commentCount > 0 && (
-                            <span className="ml-2 text-blue-500 text-sm">
-                              [{commentCount}]
-                            </span>
-                          )}
-                        </h2>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>{post.author}</span>
-                          <span>
-                            {new Date(post.createdAt).toLocaleDateString(
-                              "ko-KR"
+              await Promise.all(
+                posts.map(async (post) => {
+                  const commentCount = await getCommentCount(post.id);
+                  return (
+                    <Link
+                      key={post.id}
+                      href={`/posts/${post.id}`}
+                      className="block px-6 py-4 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h2 className="text-lg font-semibold text-gray-800 mb-1">
+                            {post.title}
+                            {commentCount > 0 && (
+                              <span className="ml-2 text-blue-500 text-sm">
+                                [{commentCount}]
+                              </span>
                             )}
-                          </span>
-                          <span>조회 {post.views}</span>
+                          </h2>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span>{post.author}</span>
+                            <span>
+                              {new Date(post.createdAt).toLocaleDateString(
+                                "ko-KR"
+                              )}
+                            </span>
+                            <span>조회 {post.views}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                );
-              })
+                    </Link>
+                  );
+                })
+              )
             )}
           </div>
 

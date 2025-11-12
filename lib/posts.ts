@@ -1,7 +1,67 @@
 import { Post } from "@/types/post";
+import {
+  loadPosts,
+  addPost,
+  getPostById,
+  deletePostById,
+} from "./storage/postStorage";
 
-// 샘플 데이터 생성 함수
-function generateSamplePosts(): Post[] {
+// 모든 게시글 조회
+export async function getPosts(): Promise<Post[]> {
+  const posts = await loadPosts();
+  return posts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+// 페이지네이션을 위한 게시글 조회
+export async function getPostsWithPagination(
+  page: number = 1,
+  pageSize: number = 10
+): Promise<{
+  posts: Post[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}> {
+  const allPosts = await loadPosts();
+  const sortedPosts = allPosts.sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+  );
+
+  const totalCount = sortedPosts.length;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedPosts = sortedPosts.slice(startIndex, endIndex);
+
+  return {
+    posts: paginatedPosts,
+    totalCount,
+    totalPages,
+    currentPage: page,
+    pageSize,
+  };
+}
+
+// 특정 게시글 조회 (조회수 증가)
+export async function getPost(id: number): Promise<Post | null> {
+  return await getPostById(id);
+}
+
+// 게시글 생성
+export async function createPost(
+  data: Omit<Post, "id" | "createdAt" | "views">
+): Promise<Post> {
+  return await addPost(data);
+}
+
+// 게시글 삭제
+export async function deletePost(id: number): Promise<boolean> {
+  return await deletePostById(id);
+}
+
+// 샘플 데이터 생성 함수 (마이그레이션용)
+export function generateSamplePosts(): Post[] {
   const titles = [
     "Next.js 게시판에 오신 것을 환영합니다!",
     "Next.js 시작하기",
@@ -33,7 +93,16 @@ function generateSamplePosts(): Post[] {
     "최신 기술 트렌드와 베스트 프랙티스를 소개합니다.",
   ];
 
-  const authors = ["관리자", "개발자", "사용자1", "사용자2", "사용자3", "전문가", "초보자", "선임개발자"];
+  const authors = [
+    "관리자",
+    "개발자",
+    "사용자1",
+    "사용자2",
+    "사용자3",
+    "전문가",
+    "초보자",
+    "선임개발자",
+  ];
 
   const samplePosts: Post[] = [];
   const startDate = new Date("2024-01-01");
@@ -58,68 +127,4 @@ function generateSamplePosts(): Post[] {
   }
 
   return samplePosts;
-}
-
-// 임시 데이터 저장소 (실제 프로젝트에서는 데이터베이스 사용)
-let posts: Post[] = generateSamplePosts();
-
-// 모든 게시글 조회
-export function getPosts(): Post[] {
-  return posts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-}
-
-// 페이지네이션을 위한 게시글 조회
-export function getPostsWithPagination(page: number = 1, pageSize: number = 10): {
-  posts: Post[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-} {
-  const sortedPosts = posts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  const totalCount = sortedPosts.length;
-  const totalPages = Math.ceil(totalCount / pageSize);
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedPosts = sortedPosts.slice(startIndex, endIndex);
-
-  return {
-    posts: paginatedPosts,
-    totalCount,
-    totalPages,
-    currentPage: page,
-    pageSize,
-  };
-}
-
-// 특정 게시글 조회
-export function getPost(id: number): Post | undefined {
-  const post = posts.find((p) => p.id === id);
-  if (post) {
-    // 조회수 증가
-    post.views++;
-  }
-  return post;
-}
-
-// 게시글 생성
-export function createPost(data: Omit<Post, "id" | "createdAt" | "views">): Post {
-  const newPost: Post = {
-    id: posts.length > 0 ? Math.max(...posts.map((p) => p.id)) + 1 : 1,
-    ...data,
-    createdAt: new Date(),
-    views: 0,
-  };
-  posts.push(newPost);
-  return newPost;
-}
-
-// 게시글 삭제
-export function deletePost(id: number): boolean {
-  const index = posts.findIndex((p) => p.id === id);
-  if (index !== -1) {
-    posts.splice(index, 1);
-    return true;
-  }
-  return false;
 }
